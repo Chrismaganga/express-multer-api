@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --error-color: #e74c3c;
+            --text-color: #2c3e50;
+            --border-radius: 8px;
+            --spacing: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f5f6fa;
+            padding: var(--spacing);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing);
+            font-size: 2.5rem;
+        }
+
+        .upload-form {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: var(--spacing);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: var(--spacing);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: var(--spacing);
+            padding: var(--spacing) 0;
+        }
+
+        .image-card {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .image-info {
+            padding: 15px;
+        }
+
+        .image-info h3 {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+        }
+
+        .image-info p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .image-info small {
+            display: block;
+            margin-top: 10px;
+            color: #999;
+        }
+
+        /* Loading state */
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .image-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .upload-form {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .image-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .image-card img {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Upload</h1>
+        
+        <div class="upload-form">
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="name">Image Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" name="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="image">Select Image:</label>
+                    <input type="file" id="image" name="image" accept="image/*" required>
+                </div>
+                <button type="submit">Upload Image</button>
+            </form>
+        </div>
+
+        <h2>Uploaded Images</h2>
+        <div id="imageGrid" class="image-grid"></div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const imageGrid = document.getElementById('imageGrid');
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('image', document.getElementById('image').files[0]);
+
+            try {
+                uploadForm.classList.add('loading');
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+                
+                const result = await response.json();
+                alert('Image uploaded successfully!');
+                loadImages();
+                uploadForm.reset();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to upload image');
+            } finally {
+                uploadForm.classList.remove('loading');
+            }
+        });
+
+        async function loadImages() {
+            try {
+                imageGrid.classList.add('loading');
+                const response = await fetch('/api/images');
+                const images = await response.json();
+                
+                imageGrid.innerHTML = images.map(image => `
+                    <div class="image-card">
+                        <img src="/uploads/${image.filename}" alt="${image.name}">
+                        <div class="image-info">
+                            <h3>${image.name}</h3>
+                            <p>${image.description}</p>
+                            <small>Created: ${new Date(image.created_at).toLocaleString()}</small>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading images:', error);
+                imageGrid.innerHTML = '<p>Error loading images</p>';
+            } finally {
+                imageGrid.classList.remove('loading');
+            }
+        }
+
+        // Load images on page load
+        loadImages();
+    </script>
+</body>
+</html>

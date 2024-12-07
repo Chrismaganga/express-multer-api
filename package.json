@@ -1,0 +1,38 @@
+{
+  "name": "express-multer-api",
+  "version": "1.0.0",
+  "description": "Express Image API with Multer and Supabase",
+  "main": "dist/server.js",
+  "scripts": {
+    "start": "ts-node src/server.ts",
+    "build": "tsc",
+    "dev": "nodemon src/server.ts",
+    "test": "jasmine"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.2",
+    "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^7.2.0",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.11.3",
+    "supertest": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jasmine": "^5.1.4",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.10.4",
+    "@types/pg": "^8.10.9",
+    "@types/supertest": "^6.0.2",
+    "jasmine": "^5.1.0",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
