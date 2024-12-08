@@ -6,14 +6,13 @@ import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import { router } from './routes';
 import dotenv from 'dotenv';
+import { json } from 'stream/consumers';
 
-// Load environment variables
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
-// Security middleware
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -25,13 +24,12 @@ app.use(helmet({
     }
 }));
 
-// Rate limiting
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
+    windowMs: 15 * 60 * 1000, 
+    max: 100 
 });
 
-// Middleware
+// middleware
 app.use(limiter);
 app.use(cors());
 app.use(compression());
@@ -57,14 +55,14 @@ app.get('/health', (req: Request, res: Response) => {
 // API routes
 app.use('/api', router);
 
+
 // Serve the HTML page
 app.get('/', (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
+  
 });
 
 // Start server
 app.listen(port, () => {
     console.log(`🚀 Server is running on port ${port}`);
-    console.log(`📁 Static files are served from ${path.join(__dirname, '../public')}`);
-    console.log(`🖼️ Uploads are served from ${path.join(__dirname, '../uploads')}`);
 });

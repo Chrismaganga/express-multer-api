@@ -3,13 +3,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY ) {
     throw new Error('Missing Supabase credentials in environment variables');
 }
 
 export const supabaseClient = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_KEY,
+  
+  
     {
         auth: {
             persistSession: false
